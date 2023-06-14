@@ -16,7 +16,6 @@ public class MaxCharCounter {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         Map<Integer, TreeSet<String>> charCountToTreeSetMap = populateHighestCountCharMap(str1CharToCountMap, str2CharToCountMap);
-        System.out.println(charCountToTreeSetMap);
 
         StringBuilder resMixStrBuilder = formatResultantString(charCountToTreeSetMap);
         return resMixStrBuilder.deleteCharAt(resMixStrBuilder.length()-1).toString();
