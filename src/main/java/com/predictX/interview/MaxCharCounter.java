@@ -40,37 +40,37 @@ public class MaxCharCounter {
         Map<Character, Integer> str2CharToCountMap = charCountFunc(s2).entrySet().stream().filter(entry -> entry.getValue() > 1)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        Map<Map<Character, String>, Integer> charStrNumToCountMap = populateHighestCountCharMap(str1CharToCountMap, str2CharToCountMap);
-
-        Map<Map<Character, String>, Integer> charStrNumToCountDescMap = entriesSortedByValues(charStrNumToCountMap);
-
+        Map<Integer, TreeSet<String>> charCountToTreeSetMap = populateHighestCountCharMap(str1CharToCountMap, str2CharToCountMap);
+        System.out.println(charCountToTreeSetMap);
 
         StringBuilder resMixStrBuilder = new StringBuilder();
-        Iterator<Map.Entry<Map<Character, String>, Integer>> it = charStrNumToCountDescMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Map<Character, String>, Integer> charStrNumToCount = it.next();
-            Map<Character, String> characterToStrNum = charStrNumToCount.getKey();
-            Set<Character> set = characterToStrNum.keySet();
-            Character character = set.iterator().next();
-            String strNum = String.valueOf(characterToStrNum.get(character));
-            Integer charToStrNumCount = charStrNumToCount.getValue();
-            resMixStrBuilder.append(strNum);
-            for (int i = 0; i < charToStrNumCount; i++) {
-                resMixStrBuilder.append(character);
-            }
-            if (it.hasNext()) {
-                resMixStrBuilder.append("/");
+        Iterator<Map.Entry<Integer, TreeSet<String>>> charCountToTreeSetIt = charCountToTreeSetMap.entrySet().iterator();
+        while (charCountToTreeSetIt.hasNext()) {
+            Map.Entry<Integer, TreeSet<String>> countToTreeSetEntry = charCountToTreeSetIt.next();
+            Integer count = countToTreeSetEntry.getKey();
+            TreeSet<String> charStrNumSet = countToTreeSetEntry.getValue();
+            Iterator<String> charStrNumSetIt = charStrNumSet.iterator();
+            for (String charStrNum : charStrNumSet) {
+                char character = charStrNum.charAt(0);
+                char num = charStrNum.charAt(1);
+                resMixStrBuilder.append(num).append(":");
+                for (int i = 0; i < count; i++) {
+                    resMixStrBuilder.append(character);
+                    if(i == count-1){
+                        resMixStrBuilder.append("/");
+                    }
+                }
             }
         }
         return resMixStrBuilder.toString();
     }
 
-    private Map<Map<Character, String>, Integer>
+    private Map<Integer, TreeSet<String>>
     populateHighestCountCharMap(Map<Character, Integer> str1CountMap, Map<Character, Integer> str2CountMap) {
 
         Iterator<Map.Entry<Character, Integer>> str1CountMapIter = str1CountMap.entrySet().iterator();
 
-        Map<Map<Character, String>, Integer> charStrNumToCountMap = new HashMap<>();
+        Map<Integer, TreeSet<String>> countToCharSetMap = new TreeMap<>(Collections.reverseOrder());
 
         Set<Character> str2CharSet = str2CountMap.keySet();
         while (str1CountMapIter.hasNext()) {
@@ -79,22 +79,39 @@ public class MaxCharCounter {
             Character str1Char = str1CountEntry.getKey();
             int str1Count = str1CountEntry.getValue();
 
-            Map<Character, String> charToStrNumMap = new HashMap<>();
+            TreeSet<String> orderedSet = new TreeSet<>();
             if (str2CharSet.contains(str1Char)) {
-                int str2CharCount = str2CountMap.get(str1Char);
-                if (str1Count > str2CharCount) {
-                    charToStrNumMap.put(str1Char, "1:");
-                    charStrNumToCountMap.put(charToStrNumMap, str1Count);
-                } else if (str1Count < str2CharCount) {
-                    charToStrNumMap.put(str1Char, "2:");
-                    charStrNumToCountMap.put(charToStrNumMap, str2CharCount);
+                int str2Count = str2CountMap.get(str1Char);
+                if (str1Count > str2Count) {
+                    orderedSet.add(str1Char + "1:");
+                    if (countToCharSetMap.get(str1Count) != null) {
+                        countToCharSetMap.get(str1Count).add(str1Char + "1:");
+                    } else {
+                        countToCharSetMap.put(str1Count, orderedSet);
+                    }
+                } else if (str1Count < str2Count) {
+                    orderedSet.add(str1Char + "2:");
+                    if (countToCharSetMap.get(str2Count) != null) {
+                        countToCharSetMap.get(str2Count).add(str1Char + "2:");
+                    } else {
+                        countToCharSetMap.put(str2Count, orderedSet);
+                    }
                 } else {
-                    charToStrNumMap.put(str1Char, "=:");
-                    charStrNumToCountMap.put(charToStrNumMap, str1Count);
+
+                    orderedSet.add(str1Char + "=:");
+                    if (countToCharSetMap.get(str1Count) != null) {
+                        countToCharSetMap.get(str1Count).add(str1Char + "=:");
+                    } else {
+                        countToCharSetMap.put(str1Count, orderedSet);
+                    }
                 }
             } else {
-                charToStrNumMap.put(str1Char, "1:");
-                charStrNumToCountMap.put(charToStrNumMap, str1Count);
+                orderedSet.add(str1Char + "1:");
+                if (countToCharSetMap.get(str1Count) != null) {
+                    countToCharSetMap.get(str1Count).add(str1Char + "1:");
+                } else {
+                    countToCharSetMap.put(str1Count, orderedSet);
+                }
             }
         }
 
@@ -103,29 +120,21 @@ public class MaxCharCounter {
                 .filter(entry -> !str1CharSet.contains(entry.getKey())).iterator();
 
         while (str2CountMapIter.hasNext()) {
-            Map<Character, String> charToStrNumMap = new HashMap<>();
+            TreeSet<String> orderedSet = new TreeSet<>();
             Map.Entry<Character, Integer> str2CountEntry = str2CountMapIter.next();
-            charToStrNumMap.put(str2CountEntry.getKey(), "2:");
-            charStrNumToCountMap.put(charToStrNumMap, str2CountEntry.getValue());
-        }
-        return charStrNumToCountMap;
-    }
-
-    private <K, V extends Comparable<? super V>> Map<K, V> entriesSortedByValues(Map<K, V> map) {
-        List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        list.sort(new Comparator<Map.Entry<K, V>>() {
-            @Override
-            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-                return o2.getValue().compareTo(o1.getValue());
+            char str2Char = str2CountEntry.getKey();
+            int str2Count = str2CountEntry.getValue();
+            orderedSet.add(str2Char + "2:");
+            if (countToCharSetMap.get(str2Count) != null) {
+                countToCharSetMap.get(str2Count).add(str2Char + "2:");
+            } else {
+                countToCharSetMap.put(str2Count, orderedSet);
             }
-        });
 
-        Map<K, V> result = new LinkedHashMap<>();
-        for (Map.Entry<K, V> entry : list) {
-            result.put(entry.getKey(), entry.getValue());
         }
-        return result;
+        return countToCharSetMap;
     }
+
 
     private Map<Character, Integer> charCountFunc(String str) {
         Map<Character, Integer> charCount = new TreeMap<>();
