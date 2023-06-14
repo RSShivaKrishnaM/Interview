@@ -18,26 +18,38 @@ public class MaxCharCounter {
         Map<Integer, TreeSet<String>> charCountToTreeSetMap = populateHighestCountCharMap(str1CharToCountMap, str2CharToCountMap);
         System.out.println(charCountToTreeSetMap);
 
+        StringBuilder resMixStrBuilder = formatResultantString(charCountToTreeSetMap);
+        return resMixStrBuilder.deleteCharAt(resMixStrBuilder.length()-1).toString();
+    }
+
+    private StringBuilder formatResultantString(Map<Integer, TreeSet<String>> charCountToTreeSetMap) {
         StringBuilder resMixStrBuilder = new StringBuilder();
-        Iterator<Map.Entry<Integer, TreeSet<String>>> charCountToTreeSetIt = charCountToTreeSetMap.entrySet().iterator();
-        while (charCountToTreeSetIt.hasNext()) {
-            Map.Entry<Integer, TreeSet<String>> countToTreeSetEntry = charCountToTreeSetIt.next();
+        for (Map.Entry<Integer, TreeSet<String>> countToTreeSetEntry : charCountToTreeSetMap.entrySet()) {
             Integer count = countToTreeSetEntry.getKey();
             TreeSet<String> charStrNumSet = countToTreeSetEntry.getValue();
-            Iterator<String> charStrNumSetIt = charStrNumSet.iterator();
+            StringBuilder equalStrBuilder = new StringBuilder();
             for (String charStrNum : charStrNumSet) {
                 char character = charStrNum.charAt(0);
                 char num = charStrNum.charAt(1);
-                resMixStrBuilder.append(num).append(":");
-                for (int i = 0; i < count; i++) {
-                    resMixStrBuilder.append(character);
-                    if(i == count-1){
-                        resMixStrBuilder.append("/");
-                    }
+                if(num == '='){
+                    formatter(equalStrBuilder, count, character, num);
+                }else {
+                    formatter(resMixStrBuilder, count, character, num);
                 }
             }
+            resMixStrBuilder.append(equalStrBuilder);
         }
-        return resMixStrBuilder.toString();
+        return resMixStrBuilder;
+    }
+
+    private void formatter(StringBuilder resMixStrBuilder, Integer count, char character, char num) {
+        resMixStrBuilder.append(num).append(":");
+        for (int i = 0; i < count; i++) {
+            resMixStrBuilder.append(character);
+            if (i == count - 1) {
+                resMixStrBuilder.append("/");
+            }
+        }
     }
 
     private Map<Integer, TreeSet<String>>
