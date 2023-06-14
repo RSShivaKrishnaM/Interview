@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-public class RestController2 {
+public class RestControllerForStrings {
 
 
     @Autowired
