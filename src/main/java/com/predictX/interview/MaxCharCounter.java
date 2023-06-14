@@ -70,34 +70,18 @@ public class MaxCharCounter {
                 int str2Count = str2CountMap.get(str1Char);
                 if (str1Count > str2Count) {
                     orderedSet.add(str1Char + "1:");
-                    if (countToCharSetMap.get(str1Count) != null) {
-                        countToCharSetMap.get(str1Count).add(str1Char + "1:");
-                    } else {
-                        countToCharSetMap.put(str1Count, orderedSet);
-                    }
+                    updateCountToCharSetMap(countToCharSetMap, str1Count, str1Char, "1:", orderedSet);
                 } else if (str1Count < str2Count) {
                     orderedSet.add(str1Char + "2:");
-                    if (countToCharSetMap.get(str2Count) != null) {
-                        countToCharSetMap.get(str2Count).add(str1Char + "2:");
-                    } else {
-                        countToCharSetMap.put(str2Count, orderedSet);
-                    }
+                    updateCountToCharSetMap(countToCharSetMap, str2Count, str1Char, "2:", orderedSet);
                 } else {
 
                     orderedSet.add(str1Char + "=:");
-                    if (countToCharSetMap.get(str1Count) != null) {
-                        countToCharSetMap.get(str1Count).add(str1Char + "=:");
-                    } else {
-                        countToCharSetMap.put(str1Count, orderedSet);
-                    }
+                    updateCountToCharSetMap(countToCharSetMap, str1Count, str1Char, "=:", orderedSet);
                 }
             } else {
                 orderedSet.add(str1Char + "1:");
-                if (countToCharSetMap.get(str1Count) != null) {
-                    countToCharSetMap.get(str1Count).add(str1Char + "1:");
-                } else {
-                    countToCharSetMap.put(str1Count, orderedSet);
-                }
+                updateCountToCharSetMap(countToCharSetMap, str1Count, str1Char, "1:", orderedSet);
             }
         }
 
@@ -111,14 +95,18 @@ public class MaxCharCounter {
             char str2Char = str2CountEntry.getKey();
             int str2Count = str2CountEntry.getValue();
             orderedSet.add(str2Char + "2:");
-            if (countToCharSetMap.get(str2Count) != null) {
-                countToCharSetMap.get(str2Count).add(str2Char + "2:");
-            } else {
-                countToCharSetMap.put(str2Count, orderedSet);
-            }
+            updateCountToCharSetMap(countToCharSetMap, str2Count, str2Char, "2:", orderedSet);
 
         }
         return countToCharSetMap;
+    }
+
+    private static void updateCountToCharSetMap(Map<Integer, TreeSet<String>> countToCharSetMap, int str1Count, Character str1Char, String x, TreeSet<String> orderedSet) {
+        if (countToCharSetMap.get(str1Count) != null) {
+            countToCharSetMap.get(str1Count).add(str1Char + x);
+        } else {
+            countToCharSetMap.put(str1Count, orderedSet);
+        }
     }
 
 

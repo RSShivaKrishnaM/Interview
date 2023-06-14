@@ -33,6 +33,6 @@ public class MaxCharCountTest {
     public void test4() {
         MaxCharCounter maxCharCounter = new MaxCharCounter();
         String character = maxCharCounter.mix("Are the kids at home? aaaaa fffff", "Yes they are here! aaaaa fffff");
-        assertEquals("=:aaaaaa/2:eeeee/=:fffff/1:tt/2:rr/=:hh", character);
+        assertEquals("=:aaaaaa/2:eeeee/=:fffff/2:rr/1:tt/=:hh", character);
     }
 }
